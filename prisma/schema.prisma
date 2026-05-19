@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  stripeId      String?   @unique
+  subscription  String?   // 'free', 'pro', 'enterprise'
+  domains       Domain[]
+}
+
+model Domain {
+  id          String    @id @default(cuid())
+  url         String
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  reports     Report[]
+  createdAt   DateTime  @default(now())
+}
+
+model Report {
+  id            String    @id @default(cuid())
+  domainId      String
+  domain        Domain    @relation(fields: [domainId], references: [id])
+  data          String    // JSON string of MonthlyReport
+  month         Int
+  year          Int
+  overallScore  Int
+  createdAt     DateTime  @default(now())
+}

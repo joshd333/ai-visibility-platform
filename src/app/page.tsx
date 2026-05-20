@@ -85,6 +85,90 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* How it Works */}
+      <section id="how-it-works" className="px-6 py-24 mx-auto max-w-7xl">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold mb-4">Up and running in 60 seconds.</h2>
+          <p className="text-neutral-400">No setup. No integrations. Just a domain name.</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="flex flex-col items-start gap-4">
+            <div className="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-bold text-sm flex items-center justify-center">1</div>
+            <h3 className="text-lg font-bold">Enter your domain</h3>
+            <p className="text-neutral-400 leading-relaxed text-sm">Type any domain into the analyzer — yours or a competitor's. No account required to start.</p>
+          </div>
+          <div className="flex flex-col items-start gap-4">
+            <div className="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-bold text-sm flex items-center justify-center">2</div>
+            <h3 className="text-lg font-bold">AI runs the full audit</h3>
+            <p className="text-neutral-400 leading-relaxed text-sm">Our engine pulls live data from SpyFu, DataForSEO, and Serper — keywords, backlinks, rankings, and a full technical crawl.</p>
+          </div>
+          <div className="flex flex-col items-start gap-4">
+            <div className="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-bold text-sm flex items-center justify-center">3</div>
+            <h3 className="text-lg font-bold">Get your action plan</h3>
+            <p className="text-neutral-400 leading-relaxed text-sm">See your score, keyword gaps, competitor moves, and a prioritized list of next steps — all in one dashboard.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="px-6 py-24 bg-neutral-900/50 border-y border-neutral-800">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">Simple, transparent pricing.</h2>
+            <p className="text-neutral-400">Start free. Scale when you're ready.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="p-8 rounded-2xl bg-neutral-950 border border-neutral-800 flex flex-col gap-4">
+              <div>
+                <p className="text-sm font-semibold text-neutral-400 mb-1">Starter</p>
+                <p className="text-4xl font-extrabold">Free</p>
+              </div>
+              <ul className="flex flex-col gap-2 text-sm text-neutral-400 flex-1">
+                <li>5 domain analyses / month</li>
+                <li>Top keywords &amp; competitors</li>
+                <li>Backlink summary</li>
+              </ul>
+              <Link href="/dashboard" className="mt-2 text-center border border-neutral-700 px-5 py-3 rounded-xl text-sm font-semibold hover:bg-neutral-800 transition-colors">
+                Get Started
+              </Link>
+            </div>
+            <div className="p-8 rounded-2xl bg-indigo-600 border border-indigo-500 flex flex-col gap-4 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-white text-black text-xs font-bold rounded-full">Most Popular</div>
+              <div>
+                <p className="text-sm font-semibold text-indigo-200 mb-1">Pro</p>
+                <p className="text-4xl font-extrabold">$49<span className="text-lg font-medium text-indigo-200">/mo</span></p>
+              </div>
+              <ul className="flex flex-col gap-2 text-sm text-indigo-100 flex-1">
+                <li>Unlimited analyses</li>
+                <li>Full technical audit</li>
+                <li>Live SERP rankings</li>
+                <li>Keyword gap reports</li>
+                <li>Monthly digest emails</li>
+              </ul>
+              <Link href="/dashboard" className="mt-2 text-center bg-white text-black px-5 py-3 rounded-xl text-sm font-bold hover:bg-neutral-100 transition-colors">
+                Start Free Trial
+              </Link>
+            </div>
+            <div className="p-8 rounded-2xl bg-neutral-950 border border-neutral-800 flex flex-col gap-4">
+              <div>
+                <p className="text-sm font-semibold text-neutral-400 mb-1">Agency</p>
+                <p className="text-4xl font-extrabold">$199<span className="text-lg font-medium text-neutral-400">/mo</span></p>
+              </div>
+              <ul className="flex flex-col gap-2 text-sm text-neutral-400 flex-1">
+                <li>Everything in Pro</li>
+                <li>Multi-domain management</li>
+                <li>PDF report exports</li>
+                <li>Client-ready dashboards</li>
+                <li>Priority support</li>
+              </ul>
+              <Link href="/dashboard" className="mt-2 text-center border border-neutral-700 px-5 py-3 rounded-xl text-sm font-semibold hover:bg-neutral-800 transition-colors">
+                Contact Sales
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="px-6 py-12 border-t border-neutral-800">
         <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-6">

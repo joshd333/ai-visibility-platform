@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   LineChart,
   Search,
@@ -23,22 +23,78 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [report, setReportData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [audit, setAudit] = useState<{ score: number; issues: any[] } | null>(null);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => { if (pollTimer.current) clearInterval(pollTimer.current); };
+  }, []);
+
+  const startAuditPolling = async (cleanDomain: string) => {
+    setAuditLoading(true);
+    setAudit(null);
+    if (pollTimer.current) clearInterval(pollTimer.current);
+
+    let taskId: string | null = null;
+    try {
+      const res = await fetch('/api/audit/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain: cleanDomain }),
+      });
+      const data = await res.json();
+      taskId = data.taskId;
+    } catch {
+      setAuditLoading(false);
+      return;
+    }
+
+    if (!taskId) { setAuditLoading(false); return; }
+
+    pollTimer.current = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/audit/status?taskId=${taskId}`);
+        const data = await res.json();
+        if (data.status === 'finished') {
+          clearInterval(pollTimer.current!);
+          pollTimer.current = null;
+          setAudit({ score: data.score, issues: data.issues });
+          setAuditLoading(false);
+        }
+      } catch {
+        clearInterval(pollTimer.current!);
+        pollTimer.current = null;
+        setAuditLoading(false);
+      }
+    }, 5000);
+  };
 
   const analyze = async () => {
     if (!domain) return;
     setLoading(true);
     setError(null);
     setReportData(null);
+    setAudit(null);
+    setAuditLoading(false);
+    if (pollTimer.current) { clearInterval(pollTimer.current); pollTimer.current = null; }
+
+    const cleanDomain = domain
+      .replace(/^https?:\/\//, '')
+      .replace(/^www\./, '')
+      .replace(/\/$/, '')
+      .trim();
 
     try {
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ domain }),
+        body: JSON.stringify({ domain: cleanDomain }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Analysis failed');
       setReportData(data.report);
+      startAuditPolling(cleanDomain);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -293,18 +349,28 @@ export default function Dashboard() {
               <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
                 <div className="p-6 border-b border-neutral-800 flex items-center justify-between">
                   <h3 className="font-bold">Technical Audit</h3>
-                  <span className={`text-sm font-bold px-3 py-1 rounded-full ${
-                    report.audit?.score >= 80
-                      ? 'bg-emerald-500/10 text-emerald-400'
-                      : report.audit?.score >= 60
-                      ? 'bg-amber-500/10 text-amber-400'
-                      : 'bg-rose-500/10 text-rose-400'
-                  }`}>
-                    Score: {report.audit?.score}
-                  </span>
+                  {auditLoading && !audit ? (
+                    <span className="text-sm font-bold px-3 py-1 rounded-full bg-neutral-800 text-neutral-400 flex items-center gap-2">
+                      <Loader2 size={12} className="animate-spin" />
+                      Scanning...
+                    </span>
+                  ) : audit ? (
+                    <span className={`text-sm font-bold px-3 py-1 rounded-full ${
+                      audit.score >= 80
+                        ? 'bg-emerald-500/10 text-emerald-400'
+                        : audit.score >= 60
+                        ? 'bg-amber-500/10 text-amber-400'
+                        : 'bg-rose-500/10 text-rose-400'
+                    }`}>
+                      Score: {audit.score}
+                    </span>
+                  ) : null}
                 </div>
                 <div>
-                  {report.audit?.issues?.map((issue: any, i: number) => (
+                  {auditLoading && !audit && (
+                    <p className="p-6 text-sm text-neutral-500">Crawling site — results appear in ~30 seconds...</p>
+                  )}
+                  {audit?.issues?.map((issue: any, i: number) => (
                     <div key={i} className="p-4 border-b border-neutral-800/50 flex items-start gap-3">
                       <span className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${
                         issue.severity === 'high'
@@ -316,6 +382,9 @@ export default function Dashboard() {
                       <p className="text-sm text-neutral-300">{issue.message}</p>
                     </div>
                   ))}
+                  {audit && audit.issues?.length === 0 && (
+                    <p className="p-6 text-sm text-emerald-400">No issues found</p>
+                  )}
                 </div>
               </div>
 

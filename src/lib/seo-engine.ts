@@ -111,7 +111,8 @@ export const generateContentPlan = async (keywords) => {
 
 export const generateMonthlyReport = async (domain) => {
   console.log('[' + domain + '] Starting full analysis...');
-  const [domainOverview, competitors, keywords, backlinks, audit] = await Promise.all([getSpyFuDomainOverview(domain), getSpyFuCompetitors(domain), getSpyFuKeywords(domain), getBacklinkData(domain), runTechnicalAudit('https://' + domain)]);
+  const [domainOverview, competitors, keywords, backlinks] = await Promise.all([getSpyFuDomainOverview(domain), getSpyFuCompetitors(domain), getSpyFuKeywords(domain), getBacklinkData(domain)]);
+  const audit = { score: 0, issues: [] }; // fetched async via /api/audit/*
   console.log('[' + domain + '] Domain overview:', domainOverview);
   console.log('[' + domain + '] Competitors:', competitors);
   console.log('[' + domain + '] Keywords count:', keywords.length);
@@ -125,7 +126,7 @@ export const generateMonthlyReport = async (domain) => {
   return {
     month: months[now.getMonth()],
     year: now.getFullYear(),
-    overallScore: domainOverview.domainStrength || Math.round((audit.score + 80) / 2),
+    overallScore: domainOverview.domainStrength || 0,
     topKeywords: keywords,
     audit,
     contentPlan,

@@ -222,7 +222,7 @@ export default function Dashboard() {
           <div className="bg-indigo-600 p-1 rounded-md text-white">
             <LineChart size={20} />
           </div>
-          <span>AutoSEO.ai</span>
+          <span>RankCommander</span>
         </div>
 
         <nav className="flex flex-col gap-1">

@@ -12,7 +12,7 @@ export default function LandingPage() {
           <div className="bg-indigo-600 p-1.5 rounded-lg">
             <Bot size={24} />
           </div>
-          <span>AutoSEO.ai</span>
+          <span>RankCommander</span>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-neutral-400">
           <Link href="#features" className="hover:text-white transition-colors">Features</Link>
@@ -181,9 +181,9 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2 font-bold tracking-tighter opacity-50">
             <Bot size={20} />
-            <span>AutoSEO.ai</span>
+            <span>RankCommander</span>
           </div>
-          <p className="text-neutral-500 text-sm">© 2026 AutoSEO Inc. All rights reserved.</p>
+          <p className="text-neutral-500 text-sm">© 2026 RankCommander Inc. All rights reserved.</p>
           <div className="flex gap-6 text-neutral-500 text-sm">
             <Link href="#">Privacy</Link>
             <Link href="#">Terms</Link>

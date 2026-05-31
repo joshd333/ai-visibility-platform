@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# AutoSEO.ai — AI Visibility Platform
+# RankCommander — AI Visibility Platform
 
 Autonomous AI SEO SaaS. Users sign in, add domains, and the platform runs full SEO analysis (keywords, backlinks, competitor gaps, technical audits, live rankings) via third-party APIs. Monthly cron generates and saves reports automatically.
 

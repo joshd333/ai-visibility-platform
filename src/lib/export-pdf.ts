@@ -15,7 +15,7 @@ export function exportReportPDF(domain: string, report: any) {
   doc.setFontSize(10);
   doc.setTextColor(165, 180, 252); // indigo-300
   doc.setFont('helvetica', 'bold');
-  doc.text('AutoSEO.ai', 14, 14);
+  doc.text('RankCommander', 14, 14);
 
   doc.setFontSize(18);
   doc.setTextColor(255, 255, 255);
@@ -180,7 +180,7 @@ export function exportReportPDF(domain: string, report: any) {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(80, 80, 80);
-    doc.text(`AutoSEO.ai — ${domain}`, 14, 290);
+    doc.text(`RankCommander — ${domain}`, 14, 290);
     doc.text(`Page ${i} of ${pageCount}`, pageW - 14, 290, { align: 'right' });
   }
 

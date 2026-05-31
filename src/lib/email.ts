@@ -9,7 +9,7 @@ export async function sendSEOReport(email: string, domain: string, report: any) 
   const subject = `Your SEO Report for ${domain} — ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
 
   await resend.emails.send({
-    from: 'AutoSEO.ai <reports@autoseo.ai>',
+    from: 'RankCommander <reports@rankcommander.com>',
     to: email,
     subject,
     html: buildReportEmail(domain, report, now),
@@ -51,7 +51,7 @@ function buildReportEmail(domain: string, report: any, date: Date): string {
     <!-- Header -->
     <div style="margin-bottom:32px;">
       <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;">
-        <div style="background:#4f46e5;border-radius:8px;padding:6px 10px;color:#fff;font-weight:700;font-size:14px;">AutoSEO.ai</div>
+        <div style="background:#4f46e5;border-radius:8px;padding:6px 10px;color:#fff;font-weight:700;font-size:14px;">RankCommander</div>
       </div>
       <h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:700;">Monthly SEO Report</h1>
       <p style="margin:0;color:#737373;font-size:14px;">${domain} &middot; ${MONTHS[date.getMonth()]} ${date.getFullYear()}</p>
@@ -105,15 +105,15 @@ function buildReportEmail(domain: string, report: any, date: Date): string {
 
     <!-- CTA -->
     <div style="text-align:center;margin-bottom:40px;">
-      <a href="${process.env.NEXTAUTH_URL ?? 'https://autoseo.ai'}/dashboard" style="display:inline-block;background:#4f46e5;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:14px 32px;border-radius:12px;">
+      <a href="${process.env.NEXTAUTH_URL ?? 'https://rankcommander.com'}/dashboard" style="display:inline-block;background:#4f46e5;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:14px 32px;border-radius:12px;">
         View Full Dashboard →
       </a>
     </div>
 
     <!-- Footer -->
     <div style="border-top:1px solid #262626;padding-top:24px;text-align:center;">
-      <p style="margin:0;color:#525252;font-size:12px;">AutoSEO.ai &mdash; Autonomous SEO Intelligence</p>
-      <p style="margin:8px 0 0;color:#525252;font-size:12px;">You're receiving this because you have an active domain tracked on AutoSEO.ai.</p>
+      <p style="margin:0;color:#525252;font-size:12px;">RankCommander &mdash; Autonomous SEO Intelligence</p>
+      <p style="margin:8px 0 0;color:#525252;font-size:12px;">You're receiving this because you have an active domain tracked on RankCommander.</p>
     </div>
 
   </div>

@@ -4,6 +4,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { generateMonthlyReport } from '@/lib/seo-engine';
 import { prisma } from '@/lib/prisma';
 
+const FREE_LIMIT = 1;
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -11,6 +13,33 @@ export async function POST(request: Request) {
 
     if (!domain) {
       return NextResponse.json({ error: 'Domain is required' }, { status: 400 });
+    }
+
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id as string | undefined;
+
+    // Enforce free tier limit before running the expensive analysis
+    if (userId) {
+      const subscription = (session?.user as any)?.subscription ?? 'free';
+      if (subscription === 'free') {
+        const now = new Date();
+        const usedThisMonth = await prisma.report.count({
+          where: {
+            domain: { userId },
+            month: now.getMonth() + 1,
+            year: now.getFullYear(),
+          },
+        });
+        if (usedThisMonth >= FREE_LIMIT) {
+          return NextResponse.json(
+            {
+              error: 'You have used your 1 free analysis for this month.',
+              limitReached: true,
+            },
+            { status: 403 }
+          );
+        }
+      }
     }
 
     const cleanDomain = domain
@@ -23,10 +52,7 @@ export async function POST(request: Request) {
 
     const report = await generateMonthlyReport(cleanDomain);
 
-    const session = await getServerSession(authOptions);
-    if (session?.user?.id) {
-      const userId = session.user.id as string;
-
+    if (userId) {
       let domainRecord = await prisma.domain.findFirst({
         where: { url: cleanDomain, userId },
       });

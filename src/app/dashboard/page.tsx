@@ -16,6 +16,7 @@ import {
   Zap,
   Clock,
   CreditCard,
+  ArrowUpCircle,
 } from 'lucide-react';
 
 interface SavedDomain {
@@ -30,6 +31,12 @@ interface SavedDomain {
   }[];
 }
 
+interface Usage {
+  used: number;
+  limit: number | null;
+  subscription: string;
+}
+
 export default function Dashboard() {
   const [domain, setDomain] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,6 +45,7 @@ export default function Dashboard() {
   const [audit, setAudit] = useState<{ score: number; issues: any[] } | null>(null);
   const [auditLoading, setAuditLoading] = useState(false);
   const [savedDomains, setSavedDomains] = useState<SavedDomain[]>([]);
+  const [usage, setUsage] = useState<Usage | null>(null);
   const [billingLoading, setBillingLoading] = useState(false);
   const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -52,6 +60,7 @@ export default function Dashboard() {
       if (res.ok) {
         const data = await res.json();
         setSavedDomains(data.domains || []);
+        setUsage(data.usage ?? null);
       }
     } catch {}
   };
@@ -120,6 +129,11 @@ export default function Dashboard() {
         body: JSON.stringify({ domain: cleanDomain }),
       });
       const data = await res.json();
+      if (res.status === 403 && data.limitReached) {
+        setUsage((prev) => prev ? { ...prev, used: prev.limit ?? prev.used } : null);
+        setError(data.error);
+        return;
+      }
       if (!res.ok) throw new Error(data.error || 'Analysis failed');
       setReportData(data.report);
       fetchSavedDomains();
@@ -202,7 +216,33 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="mt-auto pt-6 border-t border-neutral-800 flex flex-col gap-1">
+        <div className="mt-auto pt-6 border-t border-neutral-800 flex flex-col gap-3">
+          {/* Usage meter — only shown on free tier */}
+          {usage && usage.limit !== null && (
+            <div className="px-1">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs text-neutral-500">Analyses this month</span>
+                <span className={`text-xs font-bold ${usage.used >= usage.limit ? 'text-rose-400' : 'text-neutral-400'}`}>
+                  {usage.used} / {usage.limit}
+                </span>
+              </div>
+              <div className="h-1.5 rounded-full bg-neutral-800 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${usage.used >= usage.limit ? 'bg-rose-500' : 'bg-indigo-500'}`}
+                  style={{ width: `${Math.min((usage.used / usage.limit) * 100, 100)}%` }}
+                />
+              </div>
+              {usage.used >= usage.limit && (
+                <button
+                  onClick={() => window.location.href = '/#pricing'}
+                  className="mt-2 w-full text-center text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+                >
+                  Upgrade for unlimited →
+                </button>
+              )}
+            </div>
+          )}
+
           <button
             onClick={openBillingPortal}
             disabled={billingLoading}
@@ -235,6 +275,24 @@ export default function Dashboard() {
           </div>
         </header>
 
+        {/* Upgrade banner — shown when free limit hit */}
+        {usage && usage.limit !== null && usage.used >= usage.limit && (
+          <div className="flex items-center justify-between gap-4 bg-indigo-600/10 border border-indigo-500/30 rounded-2xl px-6 py-4 mb-8">
+            <div className="flex items-center gap-3">
+              <ArrowUpCircle size={20} className="text-indigo-400 flex-shrink-0" />
+              <p className="text-sm text-neutral-300">
+                You've used your <span className="font-semibold text-white">1 free analysis</span> for this month. Upgrade to Pro for unlimited analyses.
+              </p>
+            </div>
+            <button
+              onClick={() => window.location.href = '/#pricing'}
+              className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors"
+            >
+              Upgrade to Pro
+            </button>
+          </div>
+        )}
+
         {/* Domain Input */}
         <div className="flex gap-3 mb-10">
           <input
@@ -247,7 +305,7 @@ export default function Dashboard() {
           />
           <button
             onClick={() => analyze()}
-            disabled={loading || !domain}
+            disabled={loading || !domain || (usage?.limit !== null && usage !== null && usage.used >= (usage.limit ?? Infinity))}
             className="bg-indigo-600 px-8 py-4 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {loading ? (

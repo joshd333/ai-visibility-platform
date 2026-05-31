@@ -27,6 +27,9 @@ Autonomous AI SEO SaaS. Users sign in, add domains, and the platform runs full S
 | `src/app/api/audit/status/route.ts` | Polls DataForSEO crawl result |
 | `src/app/api/cron/seo-update/route.ts` | Monthly cron — fetches all domains from DB, saves reports |
 | `src/app/api/stripe/` | Stripe checkout, webhook, portal |
+| `src/app/api/reports/email/route.ts` | POST — manual send of current report to user email |
+| `src/lib/email.ts` | Resend client + HTML email template builder |
+| `src/lib/export-pdf.ts` | Client-side PDF export via jsPDF (called from dashboard) |
 | `src/app/page.tsx` | Public landing page |
 | `src/app/dashboard/page.tsx` | Main dashboard (client component) |
 | `prisma/schema.prisma` | User, Domain, Report models |
@@ -64,6 +67,8 @@ SERPER_API_KEY=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+
+RESEND_API_KEY=
 
 CRON_SECRET=
 ```

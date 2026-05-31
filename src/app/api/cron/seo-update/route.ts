@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { generateMonthlyReport } from '@/lib/seo-engine';
 import { prisma } from '@/lib/prisma';
+import { sendSEOReport } from '@/lib/email';
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
     console.log('Starting monthly autonomous SEO update...');
 
     const domains = await prisma.domain.findMany({
-      include: { user: { select: { subscription: true } } },
+      include: { user: { select: { id: true, email: true, subscription: true } } },
     });
 
     const now = new Date();
@@ -34,7 +35,13 @@ export async function GET(request: Request) {
             },
           });
 
-          console.log(`[${domain.url}] Monthly report saved. Score: ${reportData.overallScore}`);
+          if (domain.user?.email) {
+            await sendSEOReport(domain.user.email, domain.url, reportData).catch((err) =>
+              console.error(`[${domain.url}] Email failed:`, err.message)
+            );
+          }
+
+          console.log(`[${domain.url}] Report saved + email sent. Score: ${reportData.overallScore}`);
           return { domain: domain.url, status: 'success', score: reportData.overallScore };
         } catch (err: any) {
           console.error(`[${domain.url}] Failed:`, err.message);

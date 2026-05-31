@@ -17,6 +17,9 @@ import {
   Clock,
   CreditCard,
   ArrowUpCircle,
+  Download,
+  Mail,
+  CheckCircle,
 } from 'lucide-react';
 
 interface SavedDomain {
@@ -47,6 +50,8 @@ export default function Dashboard() {
   const [savedDomains, setSavedDomains] = useState<SavedDomain[]>([]);
   const [usage, setUsage] = useState<Usage | null>(null);
   const [billingLoading, setBillingLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -112,6 +117,7 @@ export default function Dashboard() {
     setReportData(null);
     setAudit(null);
     setAuditLoading(false);
+    setEmailSent(false);
     if (pollTimer.current) { clearInterval(pollTimer.current); pollTimer.current = null; }
 
     const cleanDomain = target
@@ -142,6 +148,29 @@ export default function Dashboard() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const exportPDF = async () => {
+    if (!report || !domain) return;
+    const { exportReportPDF } = await import('@/lib/export-pdf');
+    exportReportPDF(domain, report);
+  };
+
+  const emailReport = async () => {
+    if (!report || !domain) return;
+    setEmailLoading(true);
+    setEmailSent(false);
+    try {
+      await fetch('/api/reports/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain, report }),
+      });
+      setEmailSent(true);
+      setTimeout(() => setEmailSent(false), 4000);
+    } finally {
+      setEmailLoading(false);
     }
   };
 
@@ -340,6 +369,35 @@ export default function Dashboard() {
         {/* Results */}
         {report && !loading && (
           <>
+            {/* Results toolbar */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-neutral-300">
+                Results for <span className="text-white font-mono">{domain}</span>
+              </h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={emailReport}
+                  disabled={emailLoading || emailSent}
+                  className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-60"
+                >
+                  {emailSent ? (
+                    <><CheckCircle size={15} className="text-emerald-400" /> Sent!</>
+                  ) : emailLoading ? (
+                    <><Loader2 size={15} className="animate-spin" /> Sending...</>
+                  ) : (
+                    <><Mail size={15} /> Email Report</>
+                  )}
+                </button>
+                <button
+                  onClick={exportPDF}
+                  className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors"
+                >
+                  <Download size={15} />
+                  Export PDF
+                </button>
+              </div>
+            </div>
+
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
               <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl">

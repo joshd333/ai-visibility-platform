@@ -8,15 +8,26 @@ import {
   FileText,
   ArrowUpRight,
   Settings,
-  ExternalLink,
   Plus,
   Loader2,
   TrendingUp,
-  TrendingDown,
   Link,
   Globe,
   Zap,
+  Clock,
 } from 'lucide-react';
+
+interface SavedDomain {
+  id: string;
+  url: string;
+  reports: {
+    id: string;
+    overallScore: number;
+    month: number;
+    year: number;
+    createdAt: string;
+  }[];
+}
 
 export default function Dashboard() {
   const [domain, setDomain] = useState('');
@@ -25,11 +36,23 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [audit, setAudit] = useState<{ score: number; issues: any[] } | null>(null);
   const [auditLoading, setAuditLoading] = useState(false);
+  const [savedDomains, setSavedDomains] = useState<SavedDomain[]>([]);
   const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
+    fetchSavedDomains();
     return () => { if (pollTimer.current) clearInterval(pollTimer.current); };
   }, []);
+
+  const fetchSavedDomains = async () => {
+    try {
+      const res = await fetch('/api/reports');
+      if (res.ok) {
+        const data = await res.json();
+        setSavedDomains(data.domains || []);
+      }
+    } catch {}
+  };
 
   const startAuditPolling = async (cleanDomain: string) => {
     setAuditLoading(true);
@@ -70,8 +93,9 @@ export default function Dashboard() {
     }, 5000);
   };
 
-  const analyze = async () => {
-    if (!domain) return;
+  const analyze = async (overrideDomain?: string) => {
+    const target = overrideDomain || domain;
+    if (!target) return;
     setLoading(true);
     setError(null);
     setReportData(null);
@@ -79,11 +103,13 @@ export default function Dashboard() {
     setAuditLoading(false);
     if (pollTimer.current) { clearInterval(pollTimer.current); pollTimer.current = null; }
 
-    const cleanDomain = domain
+    const cleanDomain = target
       .replace(/^https?:\/\//, '')
       .replace(/^www\./, '')
       .replace(/\/$/, '')
       .trim();
+
+    if (!overrideDomain) setDomain(cleanDomain);
 
     try {
       const res = await fetch('/api/analyze', {
@@ -94,6 +120,7 @@ export default function Dashboard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Analysis failed');
       setReportData(data.report);
+      fetchSavedDomains();
       startAuditPolling(cleanDomain);
     } catch (err: any) {
       setError(err.message);
@@ -101,6 +128,8 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
+
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white flex">
@@ -131,6 +160,37 @@ export default function Dashboard() {
             Content Plan
           </div>
         </nav>
+
+        {/* Saved Domains */}
+        {savedDomains.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider px-1">
+              My Domains
+            </p>
+            <div className="flex flex-col gap-1">
+              {savedDomains.map((d) => {
+                const latest = d.reports[0];
+                return (
+                  <button
+                    key={d.id}
+                    onClick={() => analyze(d.url)}
+                    className="text-left p-3 rounded-lg hover:bg-neutral-900 transition-colors group"
+                  >
+                    <p className="text-sm font-mono text-neutral-300 group-hover:text-white truncate">
+                      {d.url}
+                    </p>
+                    {latest && (
+                      <p className="text-xs text-neutral-500 mt-0.5 flex items-center gap-1">
+                        <Clock size={10} />
+                        Score {latest.overallScore} · {months[latest.month - 1]} {latest.year}
+                      </p>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="mt-auto pt-6 border-t border-neutral-800">
           <div className="text-neutral-400 p-3 rounded-lg flex items-center gap-3 text-sm font-medium hover:bg-neutral-900 transition-colors cursor-pointer">
@@ -168,7 +228,7 @@ export default function Dashboard() {
             className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-5 py-4 text-sm outline-none focus:border-indigo-500 transition-colors font-mono"
           />
           <button
-            onClick={analyze}
+            onClick={() => analyze()}
             disabled={loading || !domain}
             className="bg-indigo-600 px-8 py-4 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >

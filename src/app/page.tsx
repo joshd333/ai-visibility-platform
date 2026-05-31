@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Bot, BarChart3, Zap, ShieldCheck, Mail } from 'lucide-react';
+import { PricingButton } from './components/PricingButtons';
 
 export default function LandingPage() {
   return (
@@ -128,9 +129,11 @@ export default function LandingPage() {
                 <li>Top keywords &amp; competitors</li>
                 <li>Backlink summary</li>
               </ul>
-              <Link href="/dashboard" className="mt-2 text-center border border-neutral-700 px-5 py-3 rounded-xl text-sm font-semibold hover:bg-neutral-800 transition-colors">
-                Get Started
-              </Link>
+              <PricingButton
+                plan={null}
+                label="Get Started"
+                className="mt-2 text-center border border-neutral-700 px-5 py-3 rounded-xl text-sm font-semibold hover:bg-neutral-800 transition-colors disabled:opacity-50"
+              />
             </div>
             <div className="p-8 rounded-2xl bg-indigo-600 border border-indigo-500 flex flex-col gap-4 relative">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-white text-black text-xs font-bold rounded-full">Most Popular</div>
@@ -145,9 +148,11 @@ export default function LandingPage() {
                 <li>Keyword gap reports</li>
                 <li>Monthly digest emails</li>
               </ul>
-              <Link href="/dashboard" className="mt-2 text-center bg-white text-black px-5 py-3 rounded-xl text-sm font-bold hover:bg-neutral-100 transition-colors">
-                Start Free Trial
-              </Link>
+              <PricingButton
+                plan="pro"
+                label="Start Free Trial"
+                className="mt-2 text-center bg-white text-black px-5 py-3 rounded-xl text-sm font-bold hover:bg-neutral-100 transition-colors disabled:opacity-50"
+              />
             </div>
             <div className="p-8 rounded-2xl bg-neutral-950 border border-neutral-800 flex flex-col gap-4">
               <div>
@@ -161,9 +166,11 @@ export default function LandingPage() {
                 <li>Client-ready dashboards</li>
                 <li>Priority support</li>
               </ul>
-              <Link href="/dashboard" className="mt-2 text-center border border-neutral-700 px-5 py-3 rounded-xl text-sm font-semibold hover:bg-neutral-800 transition-colors">
-                Contact Sales
-              </Link>
+              <PricingButton
+                plan="agency"
+                label="Get Started"
+                className="mt-2 text-center border border-neutral-700 px-5 py-3 rounded-xl text-sm font-semibold hover:bg-neutral-800 transition-colors disabled:opacity-50"
+              />
             </div>
           </div>
         </div>

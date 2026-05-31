@@ -15,6 +15,7 @@ import {
   Globe,
   Zap,
   Clock,
+  CreditCard,
 } from 'lucide-react';
 
 interface SavedDomain {
@@ -37,6 +38,7 @@ export default function Dashboard() {
   const [audit, setAudit] = useState<{ score: number; issues: any[] } | null>(null);
   const [auditLoading, setAuditLoading] = useState(false);
   const [savedDomains, setSavedDomains] = useState<SavedDomain[]>([]);
+  const [billingLoading, setBillingLoading] = useState(false);
   const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -129,6 +131,14 @@ export default function Dashboard() {
     }
   };
 
+  const openBillingPortal = async () => {
+    setBillingLoading(true);
+    const res = await fetch('/api/stripe/portal', { method: 'POST' });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    setBillingLoading(false);
+  };
+
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
   return (
@@ -192,7 +202,15 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="mt-auto pt-6 border-t border-neutral-800">
+        <div className="mt-auto pt-6 border-t border-neutral-800 flex flex-col gap-1">
+          <button
+            onClick={openBillingPortal}
+            disabled={billingLoading}
+            className="text-neutral-400 p-3 rounded-lg flex items-center gap-3 text-sm font-medium hover:bg-neutral-900 transition-colors disabled:opacity-50"
+          >
+            <CreditCard size={18} />
+            {billingLoading ? 'Loading...' : 'Manage Billing'}
+          </button>
           <div className="text-neutral-400 p-3 rounded-lg flex items-center gap-3 text-sm font-medium hover:bg-neutral-900 transition-colors cursor-pointer">
             <Settings size={18} />
             Settings
